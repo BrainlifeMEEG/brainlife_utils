@@ -275,7 +275,7 @@ def add_raw_info_to_product(items_list, raw):
     import mne
     
     # Channel information with type counts
-    ch_types = mne.get_channel_types(raw.info)
+    ch_types = raw.get_channel_types()
     ch_type_counts = {}
     for ch_type in ch_types:
         count = sum(1 for t in raw.get_channel_types() if t == ch_type)
