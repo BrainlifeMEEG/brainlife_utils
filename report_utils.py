@@ -248,6 +248,72 @@ def create_product_json(items, output_path='product.json', unstructured_data=Non
         raise IOError(f"Failed to write product.json to {output_path}: {str(e)}")
 
 
+def add_raw_info_to_product(items_list, raw):
+    """Add structured MNE raw data information to the product list.
+    
+    Adds multiple info messages with key raw data parameters to the product
+    items list for display in the Brainlife.io interface:
+    - Channel types and counts
+    - Sampling frequency
+    - Recording duration
+    - Digitized head points count
+    - Filter settings (highpass/lowpass)
+    - Projector information
+    
+    Parameters
+    ----------
+    items_list : list
+        List to append the info items to.
+    raw : mne.io.Raw
+        MNE raw data object.
+        
+    Raises
+    ------
+    AttributeError
+        If raw does not have expected MNE attributes.
+    """
+    import mne
+    
+    # Channel information with type counts
+    ch_types = mne.get_channel_types(raw.info)
+    ch_type_counts = {}
+    for ch_type in ch_types:
+        count = sum(1 for t in raw.get_channel_types() if t == ch_type)
+        ch_type_counts[ch_type] = count
+    ch_types_msg = f"Channel types: {', '.join([f'{count} {ch_type}' for ch_type, count in sorted(ch_type_counts.items())])}"
+    add_info_to_product(items_list, ch_types_msg)
+    
+    # Sampling frequency
+    sfreq = raw.info['sfreq']
+    add_info_to_product(items_list, f"Sampling frequency: {sfreq} Hz")
+    
+    # Duration
+    duration = raw.times[-1]
+    add_info_to_product(items_list, f"Duration: {duration:.2f} seconds")
+    
+    # Digitized head points
+    if raw.info['dig']:
+        dig_count = len(raw.info['dig'])
+        add_info_to_product(items_list, f"Digitized head points: {dig_count}")
+    else:
+        add_info_to_product(items_list, "Digitized head points: None")
+    
+    # Filters
+    if raw.info['highpass'] is not None or raw.info['lowpass'] is not None:
+        highpass = raw.info['highpass'] if raw.info['highpass'] is not None else "None"
+        lowpass = raw.info['lowpass'] if raw.info['lowpass'] is not None else "None"
+        add_info_to_product(items_list, f"Filters: High-pass={highpass} Hz, Low-pass={lowpass} Hz")
+    else:
+        add_info_to_product(items_list, "Filters: None")
+    
+    # Projectors
+    if raw.info['projs']:
+        n_projs = len(raw.info['projs'])
+        add_info_to_product(items_list, f"Projectors: {n_projs} SSP projector(s)")
+    else:
+        add_info_to_product(items_list, "Projectors: None")
+
+
 def add_image_to_product(images_list, name, base64_data=None, filepath=None):
     """Add a PNG image to the product list.
     
