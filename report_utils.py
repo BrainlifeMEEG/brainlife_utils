@@ -17,7 +17,7 @@ import os
 
 # Allowed message types in product.json
 ALLOWED_MESSAGE_TYPES = {'info', 'warning', 'error', 'danger', 'success'}
-ALLOWED_ITEM_TYPES = ALLOWED_MESSAGE_TYPES | {'image/png', 'plotly', 'image/jpeg', 'image/svg+xml'}
+ALLOWED_ITEM_TYPES = ALLOWED_MESSAGE_TYPES | {'image/png', 'plotly'}
 
 
 def _validate_message_item(item):
@@ -52,7 +52,7 @@ def _validate_message_item(item):
 
 
 def _validate_image_item(item):
-    """Validate an image item (image/png, image/jpeg, image/svg+xml).
+    """Validate an image item (image/png).
     
     Parameters
     ----------
@@ -70,8 +70,8 @@ def _validate_image_item(item):
     if 'type' not in item:
         raise ValueError("Image item must have 'type' key")
     
-    if item['type'] not in {'image/png', 'image/jpeg', 'image/svg+xml'}:
-        raise ValueError(f"Image type '{item['type']}' not in {{image/png, image/jpeg, image/svg+xml}}")
+    if item['type'] != 'image/png':
+        raise ValueError(f"Image type must be 'image/png', got '{item['type']}'")
     
     if 'name' not in item:
         raise ValueError("Image item must have 'name' key")
@@ -248,10 +248,10 @@ def create_product_json(items, output_path='product.json', unstructured_data=Non
         raise IOError(f"Failed to write product.json to {output_path}: {str(e)}")
 
 
-def add_image_to_product(images_list, name, base64_data=None, filepath=None, image_type='image/png'):
-    """Add an image to the product list.
+def add_image_to_product(images_list, name, base64_data=None, filepath=None):
+    """Add a PNG image to the product list.
     
-    Adds a base64-encoded image to the product items list for visualization
+    Adds a base64-encoded PNG image to the product items list for visualization
     in the Brainlife.io interface.
     
     Parameters
@@ -265,22 +265,14 @@ def add_image_to_product(images_list, name, base64_data=None, filepath=None, ima
     filepath : str, optional
         Path to image file (will be converted to base64). Either this or 
         base64_data must be provided.
-    image_type : str
-        MIME type of the image ('image/png', 'image/jpeg', 'image/svg+xml').
-        Default: 'image/png'
         
     Raises
     ------
     ValueError
-        If neither base64_data nor filepath is provided, or if image_type is invalid.
+        If neither base64_data nor filepath is provided.
     FileNotFoundError
         If filepath is provided but the file does not exist.
     """
-    # Validate image type
-    valid_types = {'image/png', 'image/jpeg', 'image/svg+xml'}
-    if image_type not in valid_types:
-        raise ValueError(f"image_type must be one of {valid_types}, got '{image_type}'")
-    
     # Get base64 data
     if base64_data is None and filepath is not None:
         if not os.path.exists(filepath):
@@ -300,7 +292,7 @@ def add_image_to_product(images_list, name, base64_data=None, filepath=None, ima
     
     # Create and validate item
     item = {
-        'type': image_type,
+        'type': 'image/png',
         'name': name,
         'base64': base64_data
     }
