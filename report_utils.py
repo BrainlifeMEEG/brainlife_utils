@@ -287,9 +287,10 @@ def add_raw_info_to_product(items_list, raw):
     sfreq = raw.info['sfreq']
     add_info_to_product(items_list, f"Sampling frequency: {sfreq} Hz")
     
-    # Duration
+    # Duration and number of time points
+    n_times = raw.n_times
     duration = raw.times[-1]
-    add_info_to_product(items_list, f"Duration: {duration:.2f} seconds")
+    add_info_to_product(items_list, f"Duration: {duration:.2f} seconds ({n_times} time points)")
     
     # Digitized head points
     if raw.info['dig']:
