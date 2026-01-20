@@ -497,3 +497,85 @@ def create_mne_report_with_data(data, title='MNE Report', **kwargs):
             report.add_html(title='Data Info', html=f'<pre>{str(data.info)}</pre>')
     
     return report
+
+
+def plot_digitized_head_points_3d(raw, items_list=None, output_dir='out_figs'):
+    """Plot 3D digitized head points if available.
+    
+    Creates a 3D visualization of digitized head points from MNE raw data.
+    If available, also plots electrode positions for reference.
+    
+    Parameters
+    ----------
+    raw : mne.io.Raw
+        MNE raw data object.
+    items_list : list, optional
+        List to append the visualization image to. If None, image is not added
+        to product but filepath is still returned.
+    output_dir : str
+        Directory where to save the figure. Default: 'out_figs'
+        
+    Returns
+    -------
+    str or None
+        Base64 encoded image string if successful, None otherwise.
+    """
+    import mne
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    
+    # Check if digitized head points exist
+    if not raw.info['dig']:
+        return None
+    
+    try:
+        # Extract digitized head points
+        dig_points = [d['r'] for d in raw.info['dig']]
+        dig_points = np.array(dig_points)
+        
+        # Create 3D plot
+        fig = plt.figure(figsize=(12, 10))
+        ax = fig.add_subplot(111, projection='3d')
+        
+        # Plot digitized head points
+        ax.scatter(dig_points[:, 0], dig_points[:, 1], dig_points[:, 2], 
+                  c='red', marker='o', s=30, alpha=0.8, label='Digitized Head Points')
+        
+        # Also plot electrode positions if available for reference
+        try:
+            positions = raw._get_channel_positions()
+            if positions is not None and np.any(~np.isnan(positions)):
+                ax.scatter(positions[:, 0], positions[:, 1], positions[:, 2],
+                          c='blue', marker='^', s=50, alpha=0.6, label='Electrodes')
+        except Exception:
+            pass
+        
+        ax.set_xlabel('X (m)')
+        ax.set_ylabel('Y (m)')
+        ax.set_zlabel('Z (m)')
+        ax.set_title('Digitized Head Points')
+        ax.legend()
+        fig.tight_layout()
+        
+        # Save and convert to base64
+        os.makedirs(output_dir, exist_ok=True)
+        from .plot_utils import save_figure_with_base64
+        
+        filepath = os.path.join(output_dir, 'digitized_head_points_3d.png')
+        img_base64 = save_figure_with_base64(fig, filepath)
+        
+        # Add to product items if list provided
+        if items_list is not None:
+            add_image_to_product(items_list, 'Digitized Head Points (3D)', 
+                               base64_data=img_base64)
+        
+        return img_base64
+        
+    except Exception as e:
+        if items_list is not None:
+            add_info_to_product(items_list, 
+                              f"Could not plot digitized head points: {str(e)}", 
+                              'warning')
+        return None
+

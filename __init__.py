@@ -13,7 +13,8 @@ from .report_utils import (
     add_image_to_product, 
     add_info_to_product,
     add_plotly_to_product,
-    add_raw_info_to_product
+    add_raw_info_to_product,
+    plot_digitized_head_points_3d
 )
 from .plot_utils import setup_matplotlib_backend, save_plot_to_base64, save_figure_with_base64, create_standard_plot_layout
 
@@ -34,6 +35,7 @@ __all__ = [
     "add_info_to_product",
     "add_plotly_to_product",
     "add_raw_info_to_product",
+    "plot_digitized_head_points_3d",
     "setup_matplotlib_backend",
     "save_plot_to_base64",
     "save_figure_with_base64",
