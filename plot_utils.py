@@ -14,7 +14,7 @@ def setup_matplotlib_backend():
     matplotlib.use('Agg')
 
 
-def save_plot_to_base64(fig, close_fig=True):
+def save_plot_to_base64(fig, close_fig=True, dpi=100):
     """Convert matplotlib figure to base64 string.
     
     Parameters
@@ -23,6 +23,8 @@ def save_plot_to_base64(fig, close_fig=True):
         Matplotlib figure to convert.
     close_fig : bool
         Whether to close the figure after conversion.
+    dpi : int
+        Resolution for the image. Default: 100 (lower quality for smaller file size)
         
     Returns
     -------
@@ -30,7 +32,7 @@ def save_plot_to_base64(fig, close_fig=True):
         Base64 encoded string of the figure.
     """
     buffer = BytesIO()
-    fig.savefig(buffer, format='png', bbox_inches='tight', dpi=150)
+    fig.savefig(buffer, format='png', bbox_inches='tight', dpi=dpi)
     buffer.seek(0)
     
     # Convert to base64
@@ -43,7 +45,7 @@ def save_plot_to_base64(fig, close_fig=True):
     return image_base64
 
 
-def save_figure_with_base64(fig, filepath, close_fig=True):
+def save_figure_with_base64(fig, filepath, close_fig=True, dpi_file=150, dpi_base64=100):
     """Save figure to file and return base64 string.
     
     Parameters
@@ -54,20 +56,24 @@ def save_figure_with_base64(fig, filepath, close_fig=True):
         Path where to save the figure.
     close_fig : bool
         Whether to close the figure after saving.
+    dpi_file : int
+        Resolution for the saved file. Default: 150 (higher quality)
+    dpi_base64 : int
+        Resolution for the base64 encoding. Default: 100 (smaller file size for product.json)
         
     Returns
     -------
     str
-        Base64 encoded string of the figure.
+        Base64 encoded string of the figure (at dpi_base64 resolution).
     """
     # Ensure directory exists
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     
-    # Save to file
-    fig.savefig(filepath, bbox_inches='tight', dpi=150)
+    # Save to file with higher quality
+    fig.savefig(filepath, bbox_inches='tight', dpi=dpi_file)
     
-    # Get base64 string
-    base64_str = save_plot_to_base64(fig, close_fig=close_fig)
+    # Get base64 string with lower quality for smaller size
+    base64_str = save_plot_to_base64(fig, close_fig=close_fig, dpi=dpi_base64)
     
     return base64_str
 

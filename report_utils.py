@@ -535,7 +535,7 @@ def plot_digitized_head_points_3d(raw, items_list=None, output_dir='out_figs'):
         dig_points = np.array(dig_points)
         
         # Create 3D plot
-        fig = plt.figure(figsize=(12, 10))
+        fig = plt.figure(figsize=(10, 8))
         ax = fig.add_subplot(111, projection='3d')
         
         # Plot digitized head points
@@ -563,7 +563,7 @@ def plot_digitized_head_points_3d(raw, items_list=None, output_dir='out_figs'):
         from .plot_utils import save_figure_with_base64
         
         filepath = os.path.join(output_dir, 'digitized_head_points_3d.png')
-        img_base64 = save_figure_with_base64(fig, filepath)
+        img_base64 = save_figure_with_base64(fig, filepath, dpi_file=150, dpi_base64=80)
         
         # Add to product items if list provided
         if items_list is not None:
