@@ -68,3 +68,33 @@ def load_config(config_path='config.json'):
     config = define_kwargs(config)
     
     return config
+
+def get_inputs_names(config_path='config.json'):
+    """Extract input identifiers (tags and datatype_tags) from config file.
+    
+    This function reads the raw config.json file (before preprocessing) to extract
+    the _inputs metadata which contains tags and datatype_tags for each input.
+    
+    Parameters
+    ----------
+    config_path : str
+        Path to the configuration file.
+        
+    Returns
+    -------
+    inputs_info : list of dict
+        List of dictionaries containing input metadata. Each dict has keys:
+        - 'tags': list of tags for the input
+        - 'datatype_tags': list of datatype tags for the input
+        - 'meta': metadata including subject information
+        - 'id': input id (usually 'raw')
+    """
+    with open(config_path, 'r') as config_f:
+        config = json.load(config_f)
+    
+    # Extract _inputs if it exists
+    if '_inputs' in config:
+        inputs_info = config['_inputs']
+        return inputs_info
+    else:
+        return []
