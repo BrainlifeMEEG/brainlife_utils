@@ -72,6 +72,9 @@ def save_figure_with_base64(fig, filepath, close_fig=True, dpi_file=150, dpi_bas
     # Save to file with higher quality
     fig.savefig(filepath, bbox_inches='tight', dpi=dpi_file)
     
+    if close_fig:
+        plt.close(fig)
+    
     # Get base64 string with lower quality for smaller size
     base64_str = save_plot_to_base64(fig, close_fig=close_fig, dpi=dpi_base64)
     
